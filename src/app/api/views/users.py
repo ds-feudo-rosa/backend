@@ -2,11 +2,8 @@ from flask_restful import Resource, Api
 from flask import Blueprint, request
 from flask_cors import CORS
 from app.api.models.users import UserModel
-#from app import bcrypt
+from app import api_restful, bcrypt
 
-user_blueprint = Blueprint('user_view', __name__)
-api = Api(user_blueprint)
-CORS(user_blueprint)
 
 class User(Resource):
     def get(self):
@@ -22,9 +19,9 @@ class User(Resource):
         elif UserModel.query.filter_by(email=i.email).first():
             return 'Email já cadastrado'
         else:
-            #hash_password = bcrypt.generate_password_hash(i.password)
+            hash_password = bcrypt.generate_password_hash(i.password)
             new_user = UserModel(username=i.username, password=i.password, name=i.name, email=i.email)
             new_user.save()
             return 'Cadatro feito com Sucesso'
 
-api.add_resource(User, '/api/user/', endpoint='user', methods=['GET', 'POST'] )
+api_restful.add_resource(User, '/api/user/', endpoint='user', methods=['GET', 'POST'] )
