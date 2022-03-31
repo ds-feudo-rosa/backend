@@ -1,6 +1,5 @@
-from flask_restful import Resource, Api
-from flask import Blueprint, request
-from flask_cors import CORS
+from flask_restful import Resource
+from flask import  request
 from app.api.models.users import UserModel
 from app import api_restful, bcrypt
 
@@ -20,7 +19,7 @@ class User(Resource):
             return 'Email já cadastrado'
         else:
             hash_password = bcrypt.generate_password_hash(i.password)
-            new_user = UserModel(username=i.username, password=i.password, name=i.name, email=i.email)
+            new_user = UserModel(username=i.username, password=hash_password, name=i.name, email=i.email)
             new_user.save()
             return 'Cadatro feito com Sucesso'
 
