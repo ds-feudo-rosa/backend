@@ -45,6 +45,9 @@ class VotoNotice(Resource):
                 votos.unlike = votos.unlike + int(data['unlikes'])
                 votos.save()
                 return "Votação Salva"
+    
+    def get(self):
+        return "Ação Inválida"
         
 
 api_restful.add_resource(NewNotice, '/new/', endpoint='news', methods=['GET', 'POST'])
