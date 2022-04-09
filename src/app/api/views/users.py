@@ -8,34 +8,42 @@ from flask_login import current_user, login_user, logout_user
 class Register(Resource):
     def get(self):
         if current_user.is_authenticated:
-            return 'Usuário Logado', 200
+            return 'Usuário Logado {}, não precisa acessar a página de registro, redirecionando para perfil'.format(current_user.name), 200
         
-        return 'Usuário não está logado', 203
+        return 'Redirecionamento para a página de Registro de Usuários', 203
     
     def post(self):
-        user = UserModel(request.form['password'], request.form['name'], request.form['email'])
-        if UserModel.query.filter_by(email=user.email).first():
-            return 'Email já resgistrado'
+        if current_user.is_authenticated:
+            return "Já há um usuário logado, impossível registrar outro, redirecionamento para a página de perfil"
         else:
-            hash_password = bcrypt.generate_password_hash(user.password)
-            new_user = UserModel(password=hash_password, name=user.name, email=user.email)
-            new_user.save()
-            return 'Cadatro feito com Sucesso', 201
+            data = request.get_json()
+            user = UserModel(data['password'], data['name'], data['email'])
+            if UserModel.query.filter_by(email=user.email).first():
+                return 'Email já resgistrado'
+            else:
+                hash_password = bcrypt.generate_password_hash(user.password)
+                new_user = UserModel(password=hash_password, name=user.name, email=user.email)
+                new_user.save()
+                return 'Cadatro feito com Sucesso', 201
 
 class Login(Resource):
     def get(self):
         if current_user.is_authenticated:
-            return 'Usuário logado {}'.format(current_user.name), 200
+            return 'Usuário logado {}, redirecionando para a página de Perfil'.format(current_user.name), 200
         
-        return 'Usuário não está logado', 203
+        return 'Usuário não está logado, redirecionando para a página para fazer login', 203
     
     def post(self):
-        user = UserModel.query.filter_by(email=request.form['email']).first()
-        if user and bcrypt.check_password_hash(user.password, request.form['password']):
-            login_user(user)
-            return 'Login feito com sucesso'
+        if current_user.is_authenticated:
+            return "Já tem um usuário logado, sendo o {}, não é necessário fazer login novamente".format(current_user.name)
         else:
-            return 'Dados incorretos'
+            data = request.get_json()
+            user = UserModel.query.filter_by(email=data['email']).first()
+            if user and bcrypt.check_password_hash(user.password, data['password']):
+                login_user(user)
+                return 'Login do usuário {} feito com sucesso'.format(current_user.name)
+            else:
+                return 'Dados incorretos'
 
 class Logout(Resource):
     def get(self):
@@ -50,15 +58,16 @@ class Logout(Resource):
 class EditDelete(Resource):
     def patch(self):
         if current_user.is_authenticated:
+            data = request.get_json()
             old_user = current_user
-            old_user.name = request.form['new_name']
-            old_user.email = request.form['new_email']
-            old_user.password = bcrypt.generate_password_hash(request.form['new_password'])
+            old_user.name = data['new_name']
+            old_user.email = data['new_email']
+            old_user.password = bcrypt.generate_password_hash(data['new_password'])
             old_user.save()
             return 'Credenciais editadas com sucesso'
             
         else:
-            return 'Faça login primeiro antes de editar as credenciais'
+            return 'Faça login primeiro antes de editar as credenciais, redirecionando para a página de Login'
     
     def delete(self):
         if current_user.is_authenticated:
@@ -75,7 +84,7 @@ class User(Resource):
         if current_user.is_authenticated:
             return 'O usuário logado no momento é o {}'.format(current_user.name)
         else:
-            return 'Nenhum usuário Logado'
+            return 'Nenhum usuário Logado para puxar as informações'
 
 
     def post(self):

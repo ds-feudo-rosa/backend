@@ -20,6 +20,9 @@ login_manager.login_view = "login"
 from app.api.models import users
 from app.api.views import users
 
+from app.api.models import news
+from app.api.views import news
+
 def create_app(script_info=None):
     # instantiate the app
 
