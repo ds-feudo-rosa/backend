@@ -5,7 +5,7 @@ from flask_login import UserMixin
 def get_user(user_id):
     return UserModel.query.filter_by(id=user_id).first()
 
-#criação das tabelas dos usuários, herdando da classe do Model
+#criação das tabelas dos usuários, herdando da classe do Model, e herdando as propriédades de login do UserMixin
 class UserModel(db.Model, UserMixin):
     __tablename__ = "users"
 
@@ -20,10 +20,8 @@ class UserModel(db.Model, UserMixin):
         self.name = name
         self.email = email
         self.password = password
-    
-    def get_id(self):
-        return str(self.id)
-    
+
+    #Função de salvamento no banco de dados
     def save(self):
         db.session.add(self)
         return db.session.commit()
