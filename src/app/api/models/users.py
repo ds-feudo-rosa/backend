@@ -1,40 +1,27 @@
-from app import db
+from app import db, login_manager
 from flask_login import UserMixin
 
-#criação das tabelas dos usuários, herdando da classe do Model
+@login_manager.user_loader
+def get_user(user_id):
+    return UserModel.query.filter_by(id=user_id).first()
+
+#criação das tabelas dos usuários, herdando da classe do Model, e herdando as propriédades de login do UserMixin
 class UserModel(db.Model, UserMixin):
     __tablename__ = "users"
 
     #Criação de Colunas no SQL
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(15), unique=True)
-    password = db.Column(db.String(15))
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
 
     #Construtor - Inicializa todos os campos, normalmente é os campos obrigatórios, especificando quando ela for inicializada
-    def __init__(self, username, password, name, email):
-        self.username = username
-        self.password = password
+    def __init__(self, password, name, email):
         self.name = name
         self.email = email
-    
-    #Decorator de propriédades de login
-    @property
-    def is_authenticated(self):
-        return True
-    
-    @property
-    def is_active(self):
-        return True
+        self.password = password
 
-    @property
-    def is_anonymous(self):
-        return False
-    
-    def get_id(self):
-        return str(self.id)
-    
+    #Função de salvamento no banco de dados
     def save(self):
         db.session.add(self)
         return db.session.commit()
