@@ -61,9 +61,20 @@ class ReturnNotice(Resource):
         list = []
         for x in noticias:
             dados = x.__dict__
-            list.append(dados['id'])
-            list.append(dados['title'])
-            list.append(dados['text'])
+            list.append({ 
+                "id": dados['id'],
+                "title": dados['title'],
+                "text": dados['text']
+            })
+        return json.dumps(list)        
+
+class ReturnNotice(Resource):
+    def get(self):
+        noticias = NewsModel.query.all()
+        list = []
+        for x in noticias:
+            dados = x.__dict__
+            list.append(dados)
 
         return json.dumps(list)        
 
@@ -72,10 +83,14 @@ class ReturnNotice(Resource):
         if NewsModel.query.filter_by(id=data['id']).first():
             notice = NewsModel.query.filter_by(id=data['id']).first()
             votos = VoteModel.query.filter_by(id=data['id']).first()
-            return ("Title = {}, Texto = {}, Likes = {}, Deslikes = {}".format(notice.title, notice.text, votos.like, votos.unlike))
+            return json.dumps({
+              "title": notice.title, 
+              "text": notice.text, 
+              "likes": votos.like,
+              "unlikes": votos.unlike
+            })
         else:
             return 'A notícia com ess id não existe'
-
 
 '''
 Classe destinada para fazer os votos das notícias
