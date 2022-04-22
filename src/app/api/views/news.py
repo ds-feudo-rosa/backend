@@ -34,7 +34,7 @@ class NewNotice(Resource):
             if NewsModel.query.filter_by(text=data['text']).first():
                 return "Essa noticia já foi cadastrada"
             else:
-                notice = NewsModel(title=data['title'], text=data['text'])
+                notice = NewsModel(title=data['title'], text=data['text'], url=data['url'])
                 notice.save()
                 votos = VoteModel(like=0, unlike=0)
                 votos.save()
@@ -56,27 +56,31 @@ Método Post- Passos:
 '''
 
 class ReturnNotice(Resource):
+    # def get(self):
+    #     noticias = NewsModel.query.all()
+    #     lista = []
+    #     for x in noticias:
+    #         dados = x.__dict__
+    #         lista.append(dados)
+    #     print(lista)
+    #     return json.dumps(lista)        
+    
     def get(self):
         noticias = NewsModel.query.all()
         list = []
         for x in noticias:
             dados = x.__dict__
-            list.append({ 
-                "id": dados['id'],
-                "title": dados['title'],
-                "text": dados['text']
+            list.append({
+                "id": dados["id"],
+                "title": dados["title"],
+                "text": dados["text"],
+                "url": dados["url"]
             })
-        return json.dumps(list)        
-
-class ReturnNotice(Resource):
-    def get(self):
-        noticias = NewsModel.query.all()
-        list = []
-        for x in noticias:
-            dados = x.__dict__
-            list.append(dados)
-
-        return json.dumps(list)        
+            # list.append(dados['id'])
+            # list.append(dados['title'])
+            # list.append(dados['text'])
+            # list.append(dados['url'])
+        return list
 
     def post(self):
         data = request.get_json()
@@ -109,7 +113,17 @@ Método Post- Passos:
 
 class VotoNotice(Resource):
     def get(self):
-        print('oi')
+        votos = VoteModel.query.all()
+        list_votos = []
+        for x in votos:
+            dados = x.__dict__
+            list_votos.append({
+                "id": dados['id'],
+                "like": dados['like'],
+                "unlike": dados['unlike']
+            })
+
+        return list_votos
 
     def post(self):
         if current_user.is_authenticated:

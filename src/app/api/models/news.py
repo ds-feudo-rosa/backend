@@ -8,11 +8,13 @@ class NewsModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False, unique=False)
     text = db.Column(db.String(), nullable=False, unique=True)
+    url = db.Column(db.String(), nullable=True, unique=False)
 
     #Construtor - Inicializa todos os campos, normalmente é os campos obrigatórios, especificando quando ela for inicializada
-    def __init__(self, title, text):
+    def __init__(self, title, text, url=""):
         self.title = title
         self.text = text
+        self.url = url
     
     #Função de salvamento no banco de dados
     def save(self):
